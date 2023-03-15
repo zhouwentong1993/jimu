@@ -17,10 +17,33 @@
     </properties>
 
     <dependencies>
+        <!-- akka-actor 是 Akka 的核心模块，包含了 actor API -->
         <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-            <version>5.8.9</version>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.13</artifactId>
+            <version>2.6.16</version>
+        </dependency>
+
+        <!-- akka-testkit 提供了用于测试 Actor 的工具 -->
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-testkit_2.13</artifactId>
+            <version>2.6.16</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- akka-stream 提供了基于 reactive stream 的流式处理框架 -->
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-stream_2.13</artifactId>
+            <version>2.6.16</version>
+        </dependency>
+
+        <!-- akka-http 提供了 HTTP 和 WebSocket 客户端/服务器实现 -->
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-http_2.13</artifactId>
+            <version>10.2.6</version>
         </dependency>
     </dependencies>
 
