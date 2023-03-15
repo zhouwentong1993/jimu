@@ -4,6 +4,7 @@ import akka.actor.AbstractActor;
 
 // 定义一个名为 HelloWorldActor 的 actor
 public class HelloWorldActor extends AbstractActor {
+
     @Override
     public Receive createReceive() {
         return receiveBuilder().match(String.class, message -> {
