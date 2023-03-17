@@ -1,4 +1,4 @@
-package com.wentong.jimu.main;
+package com.wentong.jimu;
 
 import com.wentong.jimu.flow.FlowDef;
 import com.wentong.jimu.flow.executor.DefaultFlowExecutor;
