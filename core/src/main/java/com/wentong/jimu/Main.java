@@ -14,10 +14,10 @@ public class Main {
         ServiceFactory.registerService("ServiceC", ServiceLoader.getInstance().loadClass("com.wentong.jimu.sample.ServiceA"));
 
         FlowDef flowDef = new FlowDef();
-        flowDef.startFlow("ServiceA", "ServiceA").nextFlow("ServiceB").nextFlow("ServiceC");
+        flowDef.startFlow("ServiceA", "ServiceA", "hello").nextFlow("ServiceB").nextFlow("ServiceC");
 
         FlowExecutor flowExecutor = new DefaultFlowExecutor(flowDef);
-        flowExecutor.submit("ServiceA", "hello");
+        flowExecutor.submit("ServiceA");
 
     }
 

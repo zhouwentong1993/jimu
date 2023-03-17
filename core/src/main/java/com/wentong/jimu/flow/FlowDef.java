@@ -1,22 +1,33 @@
 package com.wentong.jimu.flow;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.wentong.jimu.flow.task.FlowTask;
+import com.wentong.jimu.flow.task.TaskFactory;
+import lombok.NonNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FlowDef {
 
-    private final Map<String, SubFlow> flowMap = new HashMap<>();
-    private SubFlow subFlow;
+    private List<String> tasks = new ArrayList<>();
+    private FlowContext flowContext;
+    private String flowName;
 
-    public FlowDef startFlow(String flowName, String service) {
-        subFlow = new SubFlow();
-        subFlow.addService(service);
-        flowMap.put(flowName, subFlow);
+    public FlowDef startFlow(@NonNull String flowName, @NonNull String service, Object input) {
+        this.flowName = flowName;
+        FlowTask task = TaskFactory.buildTask(service, input);
+        tasks.add(task.getId());
+        flowContext = new FlowContext();
+        task.setContext(flowContext);
         return this;
     }
 
     public FlowDef nextFlow(String... service) {
-        subFlow.addServices(service);
+        for (String s : service) {
+            FlowTask task = TaskFactory.buildTask(s);
+            tasks.add(task.getId());
+            task.setContext(flowContext);
+        }
         return this;
     }
 }

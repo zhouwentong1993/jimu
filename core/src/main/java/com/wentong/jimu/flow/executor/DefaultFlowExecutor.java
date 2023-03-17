@@ -27,7 +27,7 @@ public class DefaultFlowExecutor extends ServiceThread implements FlowExecutor, 
     private BlockingQueue<Service<?>> queue = new ArrayBlockingQueue<>(DEFAULT_THREAD_POOL_SIZE);
 
     @Override
-    public Object submit(String flowName, Object message) {
+    public Object submit(String flowName) {
         return null;
     }
 
