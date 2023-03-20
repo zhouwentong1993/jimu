@@ -5,6 +5,6 @@ import cn.hutool.core.lang.Dict;
 /**
  * flow 上下文
  */
-public class FlowContext extends Dict {
+public class ServiceContext extends Dict {
 
 }

@@ -1,5 +1,7 @@
 package com.wentong.jimu.service;
 
+import com.wentong.jimu.flow.ServiceContext;
+
 public interface Service<T> {
 
     /**
@@ -10,7 +12,7 @@ public interface Service<T> {
     /**
      * 服务处理
      */
-    Object process(T message);
+    Object process(T message, ServiceContext context);
 
     /**
      * 后置处理器

@@ -5,6 +5,6 @@ package com.wentong.jimu.flow;
  */
 public interface FlowDispatcher {
 
-    FlowDef getNextFlow(String flowName);
+    Flow getNextFlow(String flowName);
 
 }

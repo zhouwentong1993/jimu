@@ -1,7 +1,7 @@
 package com.wentong.jimu.flow.task;
 
 import cn.hutool.core.util.IdUtil;
-import com.wentong.jimu.flow.FlowContext;
+import com.wentong.jimu.flow.Flow;
 import com.wentong.jimu.service.Service;
 
 public class DefaultTask implements FlowTask {
@@ -12,11 +12,12 @@ public class DefaultTask implements FlowTask {
 
     private Service service;
 
-    private FlowContext flowContext;
+    private final Flow flow;
 
-    public DefaultTask(Service<?> service, Object input) {
+    public DefaultTask(Service<?> service, Object input, Flow flow) {
         this.service = service;
         this.input = input;
+        this.flow = flow;
     }
 
     @Override
@@ -26,7 +27,7 @@ public class DefaultTask implements FlowTask {
 
     @Override
     public Object process() {
-        output = service.process(input);
+        output = service.process(input, getFlow().getServiceContext());
         return output;
     }
 
@@ -51,12 +52,7 @@ public class DefaultTask implements FlowTask {
     }
 
     @Override
-    public FlowContext getContext() {
-        return null;
-    }
-
-    @Override
-    public void setContext(FlowContext context) {
-        this.flowContext = context;
+    public Flow getFlow() {
+        return this.flow;
     }
 }

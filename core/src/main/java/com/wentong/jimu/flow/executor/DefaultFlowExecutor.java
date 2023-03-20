@@ -1,7 +1,6 @@
 package com.wentong.jimu.flow.executor;
 
-import cn.hutool.core.annotation.AnnotationUtil;
-import com.wentong.jimu.flow.FlowDef;
+import com.wentong.jimu.flow.Flow;
 import com.wentong.jimu.lifecycle.LifeCycle;
 import com.wentong.jimu.service.Service;
 import com.wentong.jimu.thread.ServiceThread;
@@ -19,10 +18,10 @@ public class DefaultFlowExecutor extends ServiceThread implements FlowExecutor, 
 
     private static final int DEFAULT_THREAD_POOL_SIZE = 10000;
 
-    private final FlowDef flowDef;
+    private final Flow flow;
 
-    public DefaultFlowExecutor(FlowDef flowDef) {
-        this.flowDef = flowDef;
+    public DefaultFlowExecutor(Flow flow) {
+        this.flow = flow;
     }
 
     private BlockingQueue<Service<?>> queue = new ArrayBlockingQueue<>(DEFAULT_THREAD_POOL_SIZE);
@@ -50,7 +49,7 @@ public class DefaultFlowExecutor extends ServiceThread implements FlowExecutor, 
             if (service != null) {
                 try {
                     service.before();
-                    service.process(null);
+                    service.process(null, flow.getServiceContext());
                     service.after();
                 } catch (Exception e) {
                     log.error("", e);
