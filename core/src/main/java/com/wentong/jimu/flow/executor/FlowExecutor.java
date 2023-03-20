@@ -5,5 +5,5 @@ package com.wentong.jimu.flow.executor;
  */
 public interface FlowExecutor {
 
-    Object submit(String flowName);
+    Object submit(String flowId);
 }

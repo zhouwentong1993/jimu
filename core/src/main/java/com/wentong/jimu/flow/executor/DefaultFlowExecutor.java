@@ -27,7 +27,7 @@ public class DefaultFlowExecutor extends ServiceThread implements FlowExecutor, 
     private BlockingQueue<Service<?>> queue = new ArrayBlockingQueue<>(DEFAULT_THREAD_POOL_SIZE);
 
     @Override
-    public Object submit(String flowName) {
+    public Object submit(String flowId) {
         return null;
     }
 
@@ -49,10 +49,13 @@ public class DefaultFlowExecutor extends ServiceThread implements FlowExecutor, 
             if (service != null) {
                 try {
                     service.before();
+                    // 这里的 message 是上一个任务的返回值或者是入口的参数。Context 是围绕着 flow 的设计。
+                    // 应该提供给 task 更改 Context 的能力。
                     service.process(null, flow.getServiceContext());
                     service.after();
                 } catch (Exception e) {
                     log.error("", e);
+                    service.exception(e);
                 }
             }
             waitForRunning(1);

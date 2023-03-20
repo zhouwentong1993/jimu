@@ -1,20 +1,28 @@
 package com.wentong.jimu.flow;
 
+import com.wentong.jimu.exception.FlowBizException;
 import com.wentong.jimu.flow.task.FlowTask;
 import com.wentong.jimu.flow.task.TaskFactory;
 import lombok.NonNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Flow {
 
-    private List<String> tasks = new ArrayList<>();
+    private final List<String> tasks = new ArrayList<>();
     private ServiceContext serviceContext;
-    private String flowName;
+    private final Set<String> flowIds = new HashSet<>();
+    private String flowId;
 
-    public Flow startFlow(@NonNull String flowName, @NonNull String service, Object input) {
-        this.flowName = flowName;
+    public Flow startFlow(@NonNull String flowId, @NonNull String service, Object input) {
+        if (flowIds.contains(flowId)) {
+            throw new FlowBizException("flowId is duplicate, flowId: " + flowId);
+        }
+        flowIds.add(flowId);
+        this.flowId = flowId;
         FlowTask task = TaskFactory.buildTask(service, input, this);
         tasks.add(task.getId());
         serviceContext = new ServiceContext();
@@ -33,7 +41,7 @@ public class Flow {
         return serviceContext;
     }
 
-    public String getFlowName() {
-        return flowName;
+    public String getFlowId() {
+        return flowId;
     }
 }
