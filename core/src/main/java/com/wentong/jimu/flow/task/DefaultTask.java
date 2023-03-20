@@ -14,10 +14,13 @@ public class DefaultTask implements FlowTask {
 
     private final Flow flow;
 
+    private final String id;
+
     public DefaultTask(Service<?> service, Object input, Flow flow) {
         this.service = service;
         this.input = input;
         this.flow = flow;
+        this.id = IdUtil.fastUUID();
     }
 
     @Override
@@ -42,13 +45,8 @@ public class DefaultTask implements FlowTask {
     }
 
     @Override
-    public String getName() {
-        return service.getClass().getSimpleName();
-    }
-
-    @Override
     public String getId() {
-        return IdUtil.fastUUID();
+        return id;
     }
 
     @Override

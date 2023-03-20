@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
  * 默认的流程执行器，通过线程池和队列来执行流程。
  */
 @Slf4j
-public class DefaultFlowExecutor extends ServiceThread implements FlowExecutor, LifeCycle {
+public class DefaultFlowExecutor extends ServiceThread implements LifeCycle {
 
     private static final int DEFAULT_THREAD_POOL_SIZE = 10000;
 
@@ -25,11 +25,6 @@ public class DefaultFlowExecutor extends ServiceThread implements FlowExecutor, 
     }
 
     private BlockingQueue<Service<?>> queue = new ArrayBlockingQueue<>(DEFAULT_THREAD_POOL_SIZE);
-
-    @Override
-    public Object submit(String flowId) {
-        return null;
-    }
 
     @Override
     public String getServiceName() {

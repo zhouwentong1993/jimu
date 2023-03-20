@@ -26,11 +26,6 @@ public interface Task {
     void exception(Throwable e);
 
     /**
-     * 获取任务名称
-     */
-    String getName();
-
-    /**
      * 获取任务 id
      */
     String getId();

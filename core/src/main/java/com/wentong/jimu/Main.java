@@ -1,8 +1,8 @@
 package com.wentong.jimu;
 
 import com.wentong.jimu.flow.Flow;
-import com.wentong.jimu.flow.executor.DefaultFlowExecutor;
-import com.wentong.jimu.flow.executor.FlowExecutor;
+import com.wentong.jimu.flow.dispatcher.DefaultFlowDispatcher;
+import com.wentong.jimu.flow.dispatcher.FlowDispatcher;
 import com.wentong.jimu.service.ServiceFactory;
 import com.wentong.jimu.service.ServiceLoader;
 
@@ -14,11 +14,9 @@ public class Main {
         ServiceFactory.registerService("ServiceC", ServiceLoader.getInstance().loadClass("com.wentong.jimu.sample.ServiceA"));
 
         Flow flow = new Flow();
-        flow.startFlow("ServiceA", "ServiceA", "hello").nextFlow("ServiceB").nextFlow("ServiceC");
-
-        FlowExecutor flowExecutor = new DefaultFlowExecutor(flow);
-        flowExecutor.submit("ServiceA");
-
+        flow.startFlow("ServiceA", "hello").nextFlow("ServiceB").nextFlow("ServiceC");
+        FlowDispatcher dispatcher = new DefaultFlowDispatcher();
+        dispatcher.submit(flow);
     }
 
 }
