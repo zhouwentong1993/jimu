@@ -3,9 +3,12 @@ package com.wentong.jimu.actor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import org.junit.Test;
 
-public class Main {
-    public static void main(String[] args) {
+public class ActorTest {
+
+    @Test
+    public void testActor1() {
         // 创建 actor 系统
         ActorSystem system = ActorSystem.create("HelloWorld");
 
@@ -21,4 +24,5 @@ public class Main {
         // 关闭 actor 系统
 //        system.terminate();
     }
+
 }

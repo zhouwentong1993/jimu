@@ -1,4 +1,4 @@
-package com.wentong.jimu.sample;
+package com.wentong.jimu.service;
 
 import com.wentong.jimu.flow.ServiceContext;
 import com.wentong.jimu.service.AbstractService;
