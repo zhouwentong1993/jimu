@@ -32,7 +32,7 @@ public class DefaultFlowExecutor extends ServiceThread implements LifeCycle {
     }
 
     @Override
-    public void start() {
+    public void onStart() {
         log.info(getServiceName() + " start");
         while (!stopped) {
             Service<?> service = null;
@@ -63,7 +63,7 @@ public class DefaultFlowExecutor extends ServiceThread implements LifeCycle {
     }
 
     @Override
-    public void stop() {
+    public void onStop() {
 
     }
 }

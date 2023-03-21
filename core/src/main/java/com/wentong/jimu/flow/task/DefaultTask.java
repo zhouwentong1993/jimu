@@ -2,6 +2,7 @@ package com.wentong.jimu.flow.task;
 
 import cn.hutool.core.util.IdUtil;
 import com.wentong.jimu.flow.Flow;
+import com.wentong.jimu.flow.TaskStatusEnum;
 import com.wentong.jimu.service.Service;
 
 public class DefaultTask implements FlowTask {
@@ -52,5 +53,10 @@ public class DefaultTask implements FlowTask {
     @Override
     public Flow getFlow() {
         return this.flow;
+    }
+
+    @Override
+    public TaskStatusEnum getStatus() {
+        return null;
     }
 }

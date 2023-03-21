@@ -18,7 +18,7 @@ public class Flow {
 
     public Flow startFlow(@NonNull String service, Object input) {
         flowId = IdUtil.fastUUID();
-        FlowTask task = TaskFactory.buildTask(service, input, this);
+        FlowTask task = TaskFactory.buildTask(service, input, this );
         tasks.add(task);
         serviceContext = new ServiceContext();
         return this;
