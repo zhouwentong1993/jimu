@@ -2,9 +2,12 @@ package com.wentong.jimu.flow.task;
 
 import cn.hutool.core.util.IdUtil;
 import com.wentong.jimu.flow.Flow;
-import com.wentong.jimu.flow.TaskStatusEnum;
+import com.wentong.jimu.metrics.LoggingMetrics;
+import com.wentong.jimu.metrics.Metrics;
 import com.wentong.jimu.service.Service;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DefaultTask implements FlowTask {
 
     private Object input;
@@ -17,11 +20,14 @@ public class DefaultTask implements FlowTask {
 
     private final String id;
 
+    private Metrics metrics;
+
     public DefaultTask(Service<?> service, Object input, Flow flow) {
         this.service = service;
         this.input = input;
         this.flow = flow;
         this.id = IdUtil.fastUUID();
+        metrics = new LoggingMetrics();
     }
 
     @Override
@@ -30,9 +36,17 @@ public class DefaultTask implements FlowTask {
     }
 
     @Override
-    public Object process() {
+    public TaskResult process() {
+        String executionId = IdUtil.fastUUID();
+        log.info("执行 id：{}", executionId);
+        metrics.start();
         output = service.process(input, getFlow().getServiceContext());
-        return output;
+        metrics.stop();
+        return TaskResult.builder()
+                .input(input)
+                .output(output)
+                .executionId(getId())
+                .build();
     }
 
     @Override

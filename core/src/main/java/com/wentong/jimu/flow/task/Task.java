@@ -13,7 +13,7 @@ public interface Task {
     /**
      * 服务处理
      */
-    Object process();
+    TaskResult process();
 
     /**
      * 后置处理器

@@ -1,4 +1,4 @@
-package com.wentong.jimu.flow;
+package com.wentong.jimu.flow.task;
 
 public enum TaskStatusEnum {
 
