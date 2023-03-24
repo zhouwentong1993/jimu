@@ -22,10 +22,13 @@ public class DefaultTask implements FlowTask {
 
     private Metrics metrics;
 
-    public DefaultTask(Service<?> service, Object input, Flow flow) {
+    private final String flowType;
+
+    public DefaultTask(Service<?> service, Object input, Flow flow, String flowType) {
         this.service = service;
         this.input = input;
         this.flow = flow;
+        this.flowType = flowType;
         this.id = IdUtil.fastUUID();
         metrics = new LoggingMetrics();
     }
@@ -46,6 +49,7 @@ public class DefaultTask implements FlowTask {
                 .input(input)
                 .output(output)
                 .executionId(getId())
+                .status(TaskStatusEnum.SUCCESS)
                 .build();
     }
 
@@ -72,5 +76,10 @@ public class DefaultTask implements FlowTask {
     @Override
     public TaskStatusEnum getStatus() {
         return null;
+    }
+
+    @Override
+    public String getFlowType() {
+        return flowType;
     }
 }

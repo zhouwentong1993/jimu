@@ -1,7 +1,7 @@
 package com.wentong.jimu.flow.task;
 
 /**
- * Flow 子任务
+ * 任务
  */
 public interface Task {
 
