@@ -24,6 +24,7 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
 
     private final BlockingQueue<Task> queue = new ArrayBlockingQueue<>(DEFAULT_THREAD_POOL_SIZE);
     private final Map<String, Flow> flowMap = new HashMap<>();
+    private final Map<String, Task> taskMap = new HashMap<>();
 
 
     @Override
