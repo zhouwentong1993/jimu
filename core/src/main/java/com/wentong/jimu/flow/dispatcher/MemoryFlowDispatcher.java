@@ -2,6 +2,7 @@ package com.wentong.jimu.flow.dispatcher;
 
 import com.wentong.jimu.flow.Flow;
 import com.wentong.jimu.flow.task.Task;
+import com.wentong.jimu.flow.task.TaskResult;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,16 +33,21 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
     }
 
     @Override
-    public List<Task> getTasks(@NonNull String flowId) {
-        Flow flow = flowMap.get(flowId);
+    public List<Task> getTasks(@NonNull String flowType) {
+        Flow flow = flowMap.get(flowType);
         Objects.requireNonNull(flow);
 
         return null;
     }
 
     @Override
-    public Task getTask(String flowId) {
+    public Task getTask(String flowType) {
         return null;
+    }
+
+    @Override
+    public void reportTaskResult(TaskResult taskResult) {
+
     }
 
 }

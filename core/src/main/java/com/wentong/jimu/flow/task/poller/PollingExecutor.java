@@ -1,4 +1,4 @@
-package com.wentong.jimu.flow.task.polling;
+package com.wentong.jimu.flow.task.poller;
 
 import com.wentong.jimu.flow.task.Task;
 import com.wentong.jimu.flow.task.TaskExecutor;

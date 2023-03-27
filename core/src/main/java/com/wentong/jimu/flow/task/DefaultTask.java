@@ -10,17 +10,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultTask implements FlowTask {
 
-    private Object input;
+    private final Object input;
 
-    private Object output;
-
-    private Service service;
+    private final Service service;
 
     private final Flow flow;
 
     private final String id;
 
-    private Metrics metrics;
+    private final Metrics metrics;
 
     private final String flowType;
 
@@ -43,7 +41,7 @@ public class DefaultTask implements FlowTask {
         String executionId = IdUtil.fastUUID();
         log.info("执行 id：{}", executionId);
         metrics.start();
-        output = service.process(input, getFlow().getServiceContext());
+        Object output = service.process(input, getFlow().getServiceContext());
         metrics.stop();
         return TaskResult.builder()
                 .input(input)
