@@ -1,15 +1,14 @@
 package com.wentong.jimu.flow.dispatcher;
 
+import cn.hutool.core.collection.CollUtil;
 import com.wentong.jimu.flow.Flow;
+import com.wentong.jimu.flow.task.FlowTask;
 import com.wentong.jimu.flow.task.Task;
 import com.wentong.jimu.flow.task.TaskResult;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -24,30 +23,61 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
 
     private final BlockingQueue<Task> queue = new ArrayBlockingQueue<>(DEFAULT_THREAD_POOL_SIZE);
     private final Map<String, Flow> flowMap = new HashMap<>();
-    private final Map<String, Task> taskMap = new HashMap<>();
+    // taskType -> tasks
+    private final Map<String, List<FlowTask>> taskTypeMap = new HashMap<>();
+    // taskId -> task
+    private final Map<String, FlowTask> taskMap = new HashMap<>();
 
 
     @Override
     public synchronized void submit(Flow flow) {
+        if (CollUtil.isEmpty(flow.getTasks())) {
+            log.warn("flow {} has no task", flow.getFlowId());
+            return;
+        }
         flowMap.put(flow.getFlowId(), flow);
-        queue.addAll(flow.getTasks());
+
+        flow.getTasks().forEach(task -> {
+
+            // 加入到 id 映射
+            taskMap.put(task.getId(), task);
+
+            handleTaskType(task);
+        });
+    }
+
+    private void handleTaskType(FlowTask task) {
+        List<FlowTask> flowTasks = taskTypeMap.get(task.getTaskType());
+        if (CollUtil.isEmpty(flowTasks)) {
+            flowTasks = new ArrayList<>();
+            taskTypeMap.put(task.getTaskType(), flowTasks);
+        } else {
+            flowTasks.add(task);
+        }
     }
 
     @Override
-    public List<Task> getTasks(@NonNull String flowType) {
-        Flow flow = flowMap.get(flowType);
-        Objects.requireNonNull(flow);
-
-        return null;
+    public List<FlowTask> getTasks(@NonNull String flowType, int size) {
+        List<FlowTask> tasks = taskTypeMap.get(flowType);
+        if (!CollUtil.isEmpty(tasks)) {
+            return tasks.subList(0, Math.min(size, tasks.size()));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @Override
-    public Task getTask(String flowType) {
+    public FlowTask getTask(String flowType) {
+        List<FlowTask> tasks = taskTypeMap.get(flowType);
+        if (!CollUtil.isEmpty(tasks)) {
+            return tasks.get(0);
+        }
         return null;
     }
 
     @Override
     public void reportTaskResult(TaskResult taskResult) {
+        String taskId = taskResult.getTaskId();
 
     }
 

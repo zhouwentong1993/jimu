@@ -15,5 +15,6 @@ public class TaskResult {
     private Throwable throwable;
     private String executionId;
     private TaskStatusEnum status;
+    private String taskId;
 
 }

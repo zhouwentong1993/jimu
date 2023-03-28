@@ -8,6 +8,6 @@ public interface FlowTask extends Task {
 
     TaskStatusEnum getStatus();
 
-    String getFlowType();
+    String getTaskType();
 
 }

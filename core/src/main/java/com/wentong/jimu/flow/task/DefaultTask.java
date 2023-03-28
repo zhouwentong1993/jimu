@@ -46,7 +46,8 @@ public class DefaultTask implements FlowTask {
         return TaskResult.builder()
                 .input(input)
                 .output(output)
-                .executionId(getId())
+                .executionId(IdUtil.fastUUID())
+                .taskId(getId())
                 .status(TaskStatusEnum.SUCCESS)
                 .build();
     }
@@ -77,7 +78,7 @@ public class DefaultTask implements FlowTask {
     }
 
     @Override
-    public String getFlowType() {
+    public String getTaskType() {
         return flowType;
     }
 }

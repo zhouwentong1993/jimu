@@ -1,7 +1,7 @@
 package com.wentong.jimu.flow.task.poller;
 
 import com.wentong.jimu.flow.dispatcher.FlowDispatcher;
-import com.wentong.jimu.flow.task.Task;
+import com.wentong.jimu.flow.task.FlowTask;
 
 import java.util.List;
 
@@ -17,12 +17,12 @@ public class LocalTaskPoller implements TaskPoller {
     }
 
     @Override
-    public Task poll(String flowType) {
+    public FlowTask poll(String flowType) {
         return flowDispatcher.getTask(flowType);
     }
 
     @Override
-    public List<Task> batchPoll(String flowType) {
-        return flowDispatcher.getTasks(flowType);
+    public List<FlowTask> batchPoll(String flowType, int size) {
+        return flowDispatcher.getTasks(flowType, size);
     }
 }

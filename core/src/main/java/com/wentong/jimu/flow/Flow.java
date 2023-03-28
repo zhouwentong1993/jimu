@@ -2,7 +2,6 @@ package com.wentong.jimu.flow;
 
 import cn.hutool.core.util.IdUtil;
 import com.wentong.jimu.flow.task.FlowTask;
-import com.wentong.jimu.flow.task.Task;
 import com.wentong.jimu.flow.task.TaskFactory;
 import lombok.NonNull;
 
@@ -13,7 +12,7 @@ import static com.wentong.jimu.flow.FlowType.TEST;
 
 public class Flow {
 
-    private final List<Task> tasks = new ArrayList<>();
+    private final List<FlowTask> tasks = new ArrayList<>();
     private ServiceContext serviceContext;
 
     private String flowId;
@@ -42,7 +41,12 @@ public class Flow {
         return flowId;
     }
 
-    public List<Task> getTasks() {
+    public List<FlowTask> getTasks() {
         return tasks;
     }
+
+    public String getTaskType() {
+        return tasks.get(0).getTaskType();
+    }
+
 }
