@@ -2,10 +2,7 @@ package com.wentong.jimu.flow.dispatcher;
 
 import cn.hutool.core.collection.CollUtil;
 import com.wentong.jimu.flow.Flow;
-import com.wentong.jimu.flow.task.FlowTask;
-import com.wentong.jimu.flow.task.Task;
-import com.wentong.jimu.flow.task.TaskResult;
-import com.wentong.jimu.flow.task.TaskStatusEnum;
+import com.wentong.jimu.flow.task.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,11 +22,14 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
     private final BlockingQueue<Task> queue = new ArrayBlockingQueue<>(DEFAULT_THREAD_POOL_SIZE);
     private final Map<String, Flow> flowMap = new HashMap<>();
     // taskType -> tasks
-    private final Map<String, List<FlowTask>> taskTypeMap = new HashMap<>();
+    private final Map<String, Deque<FlowTask>> taskTypeMap = new HashMap<>();
     // taskId -> task
     private final Map<String, FlowTask> taskMap = new HashMap<>();
     // 正在处理中的任务数据。key 为 taskId，value 为 task
+    // 暂时没有用处，只是用来监控任务的执行情况。
     private final Map<String, FlowTask> processingTask = new HashMap<>();
+    // flowId -> tasks 映射关系
+    private final Map<String, List<FlowTask>> flowTaskMap = new HashMap<>();
 
 
     @Override
@@ -38,35 +38,40 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
             log.warn("flow {} has no task", flow.getFlowId());
             return;
         }
+        // 创建 flowId -> flow 映射
         flowMap.put(flow.getFlowId(), flow);
+        // 创建 flowId -> tasks 映射
+        flowTaskMap.put(flow.getFlowId(), flow.getTasks());
 
         flow.getTasks().forEach(task -> {
             // 加入到 id 映射
             taskMap.put(task.getId(), task);
-
-            handleTaskType(task);
         });
+        // 将第一个任务放到执行队列中去。
+        putTaskIntoQueue(flow.getTasks().get(0));
     }
 
-    private void handleTaskType(FlowTask task) {
-        List<FlowTask> flowTasks = taskTypeMap.get(task.getTaskType());
+    private void putTaskIntoQueue(FlowTask task) {
+        Deque<FlowTask> flowTasks = taskTypeMap.get(task.getTaskType());
         if (CollUtil.isEmpty(flowTasks)) {
-            flowTasks = new ArrayList<>();
+            flowTasks = new LinkedList<>();
             taskTypeMap.put(task.getTaskType(), flowTasks);
         } else {
-            flowTasks.add(task);
+            flowTasks.addFirst(task);
         }
     }
 
     @Override
     public List<FlowTask> getTasks(@NonNull String flowType, int size) {
-        List<FlowTask> tasks = taskTypeMap.get(flowType);
+        Deque<FlowTask> tasks = taskTypeMap.get(flowType);
         if (!CollUtil.isEmpty(tasks)) {
-            List<FlowTask> flowTasks = tasks.subList(0, Math.min(size, tasks.size()));
-            // remove from taskTypeMap
-            tasks.removeAll(flowTasks);
-            flowTasks.forEach(task -> processingTask.put(task.getId(), task));
-            return flowTasks;
+            List<FlowTask> result = new ArrayList<>();
+            for (int i = 0; i < Math.min(size, tasks.size()); i++) {
+                FlowTask flowTask = tasks.pollFirst();
+                result.add(flowTask);
+                processingTask.put(flowTask.getId(), flowTask);
+            }
+            return result;
         } else {
             return Collections.emptyList();
         }
@@ -74,9 +79,9 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
 
     @Override
     public FlowTask getTask(String flowType) {
-        List<FlowTask> tasks = taskTypeMap.get(flowType);
+        Deque<FlowTask> tasks = taskTypeMap.get(flowType);
         if (!CollUtil.isEmpty(tasks)) {
-            FlowTask flowTask = tasks.get(0);
+            FlowTask flowTask = tasks.pollFirst();
             processingTask.put(flowTask.getId(), flowTask);
             return flowTask;
         }
@@ -85,18 +90,48 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
 
     @Override
     public void reportTaskResult(TaskResult taskResult) {
+        log.info("report task id: {} result: {}", taskResult.getTaskId(), taskResult);
         String taskId = taskResult.getTaskId();
-        FlowTask flowTask = processingTask.get(taskId);
+        FlowTask flowTask = processingTask.remove(taskId);
         if (flowTask == null) {
             log.warn("task {} is not in processing", taskId);
             return;
         }
-        // 执行失败的任务重抛回任务队列
-        if (taskResult.getStatus() == TaskStatusEnum.FAIL) {
-//            taskTypeMap.put(flowTask.getTaskType(), flowTask);
+
+        switch (taskResult.getStatus()) {
+            case SUCCESS -> {
+                if (flowTask instanceof FlowFinalTask) {
+                    // 如果是最后一个任务，那么就将 flow 从 flowMap 中移除
+                    flowMap.remove(flowTask.getFlow().getFlowId());
+                    log.info("flow {} is finished", flowTask.getFlow().getFlowId());
+                    break;
+                }
+                // 执行成功，将下一个任务放入队列中
+                FlowTask nextTask = getNextTaskAndRemoveThisTask(taskId);
+                if (nextTask != null) {
+                    putTaskIntoQueue(nextTask);
+                }
+            }
+            case FAIL ->
+                // 执行失败，将任务放回队列中
+                    putTaskIntoQueue(flowTask);
+            default -> throw new IllegalStateException("Unexpected value: " + taskResult.getStatus());
         }
+    }
 
-
+    /**
+     * 获取下一个任务。Attention：这个方法有副作用。会删除该任务
+     */
+    private FlowTask getNextTaskAndRemoveThisTask(String taskId) {
+        FlowTask flowTask = taskMap.get(taskId);
+        if (flowTask == null) {
+            return null;
+        }
+        Flow flow = flowTask.getFlow();
+        List<FlowTask> flowTasks = flowTaskMap.get(flow.getFlowId());
+        FlowTask nextFlow = flowTasks.get(flowTasks.indexOf(flowTask) + 1);
+        flowTasks.remove(flowTask);
+        return nextFlow;
     }
 
 }
