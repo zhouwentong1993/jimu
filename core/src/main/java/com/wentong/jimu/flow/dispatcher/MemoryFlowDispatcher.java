@@ -55,6 +55,7 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
         Deque<FlowTask> flowTasks = taskTypeMap.get(task.getTaskType());
         if (CollUtil.isEmpty(flowTasks)) {
             flowTasks = new LinkedList<>();
+            flowTasks.addFirst(task);
             taskTypeMap.put(task.getTaskType(), flowTasks);
         } else {
             flowTasks.addFirst(task);

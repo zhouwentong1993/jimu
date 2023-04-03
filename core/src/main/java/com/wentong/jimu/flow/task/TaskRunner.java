@@ -1,6 +1,6 @@
 package com.wentong.jimu.flow.task;
 
-import com.wentong.jimu.flow.dispatcher.MemoryFlowDispatcher;
+import com.wentong.jimu.flow.dispatcher.FlowDispatcher;
 import com.wentong.jimu.flow.task.poller.LocalTaskPoller;
 import com.wentong.jimu.flow.task.poller.PollingExecutor;
 import com.wentong.jimu.flow.task.poller.PollingSemaphore;
@@ -21,27 +21,20 @@ public class TaskRunner {
     private final PollingExecutor pollingExecutor;
     private final List<Worker> workers = new ArrayList<>();
 
-    {
-        MemoryFlowDispatcher flowDispatcher = new MemoryFlowDispatcher();
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(CPU_COUNT);
+
+    public TaskRunner(FlowDispatcher flowDispatcher) {
         pollingExecutor = new PollingExecutor(new PollingSemaphore(), new LocalTaskPoller(flowDispatcher), new LocalTaskReporter(flowDispatcher));
         for (int i = 0; i < CPU_COUNT; i++) {
             workers.add(new LocalSampleWorker());
         }
     }
 
-    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(CPU_COUNT);
-
     /**
      * 任务初始化
      * 里面包括一个定时任务，定时去拉取任务
      */
     public synchronized void go() {
-        workers.forEach(worker -> scheduledExecutorService.scheduleWithFixedDelay(() -> pollingExecutor.getAndExecute(worker), 0, 1, TimeUnit.SECONDS));
+        workers.forEach(worker -> scheduledExecutorService.scheduleWithFixedDelay(() -> pollingExecutor.getAndExecute(worker), 0, 10, TimeUnit.SECONDS));
     }
-
-    public static void main(String[] args) {
-        TaskRunner taskRunner = new TaskRunner();
-        taskRunner.go();
-    }
-
 }

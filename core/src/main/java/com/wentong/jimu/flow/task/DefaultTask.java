@@ -81,4 +81,16 @@ public class DefaultTask implements FlowTask {
     public String getTaskType() {
         return flowType;
     }
+
+    @Override
+    public String toString() {
+        return "DefaultTask{" +
+                "input=" + input +
+                ", service=" + service +
+                ", flow=" + flow +
+                ", id='" + id + '\'' +
+                ", metrics=" + metrics +
+                ", flowType='" + flowType + '\'' +
+                '}';
+    }
 }

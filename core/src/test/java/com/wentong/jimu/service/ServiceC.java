@@ -1,12 +1,14 @@
 package com.wentong.jimu.service;
 
 import com.wentong.jimu.flow.ServiceContext;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ServiceC extends AbstractService<String> {
 
     @Override
     public Object process(String message, ServiceContext context) {
-        System.out.println("ServiceC.process");
+        log.info("ServiceC.process");
         return "Hello " + message;
     }
 }
