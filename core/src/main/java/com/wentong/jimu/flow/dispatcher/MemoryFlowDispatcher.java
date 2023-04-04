@@ -79,12 +79,13 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
     @Override
     public FlowTask getTask(String flowType) {
         Deque<FlowTask> tasks = taskTypeMap.get(flowType);
-        if (!CollUtil.isEmpty(tasks)) {
-            FlowTask flowTask = tasks.pollFirst();
+        FlowTask flowTask = tasks.pollFirst();
+        if (flowTask != null) {
             processingTask.put(flowTask.getId(), flowTask);
             return flowTask;
+        } else {
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -107,7 +108,7 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
                 }
                 // 执行成功，将下一个任务放入队列中
                 // 这里强转类型了，将 input 设置了一下。
-                DefaultTask nextTask = (DefaultTask)getNextTaskAndRemoveThisTask(taskId);
+                DefaultTask nextTask = (DefaultTask) getNextTaskAndRemoveThisTask(taskId);
                 if (nextTask != null) {
                     nextTask.setInput(taskResult.getOutput());
                     putTaskIntoQueue(nextTask);
