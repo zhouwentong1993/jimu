@@ -11,11 +11,11 @@ public class StartupTest {
     @Test
     public void testAll() {
         ServiceFactory.registerService("ServiceA", ServiceLoader.getInstance().loadClass("com.wentong.jimu.service.ServiceA"));
-        ServiceFactory.registerService("ServiceB", ServiceLoader.getInstance().loadClass("com.wentong.jimu.service.ServiceA"));
-        ServiceFactory.registerService("ServiceC", ServiceLoader.getInstance().loadClass("com.wentong.jimu.service.ServiceA"));
+        ServiceFactory.registerService("ServiceB", ServiceLoader.getInstance().loadClass("com.wentong.jimu.service.ServiceB"));
+        ServiceFactory.registerService("ServiceC", ServiceLoader.getInstance().loadClass("com.wentong.jimu.service.ServiceC"));
 
         Flow flow = new Flow();
-        flow.startFlow("ServiceA", "hello").nextFlow("ServiceB").nextFlow("ServiceC");
+        flow.startFlow("ServiceA", "hello", false).nextFlow("ServiceB", false).flowFinalTask("ServiceC");
         FlowDispatcher dispatcher = new MemoryFlowDispatcher();
         dispatcher.submit(flow);
 

@@ -17,19 +17,34 @@ public class Flow {
 
     private String flowId;
 
-    public Flow startFlow(@NonNull String service, Object input) {
+    public Flow startFlow(@NonNull String service, Object input, boolean finalTask) {
         flowId = IdUtil.fastUUID();
-        FlowTask task = TaskFactory.buildTask(service, input, this, TEST);
+        FlowTask task = TaskFactory.buildTask(service, input, this, TEST, finalTask);
         tasks.add(task);
         serviceContext = new ServiceContext();
         return this;
     }
 
-    public Flow nextFlow(String... service) {
+    /**
+     * next flow，用来连接那种没有终止任务的
+     */
+    public Flow nextFlowWithoutEndTask(String... service) {
         for (String s : service) {
-            FlowTask task = TaskFactory.buildTask(s, this, TEST);
+            FlowTask task = TaskFactory.buildTask(s, this, TEST, false);
             tasks.add(task);
         }
+        return this;
+    }
+
+    public Flow nextFlow(String service, boolean finalTask) {
+        FlowTask task = TaskFactory.buildTask(service, this, TEST, finalTask);
+        tasks.add(task);
+        return this;
+    }
+
+    public Flow flowFinalTask(String service) {
+        FlowTask task = TaskFactory.buildTask(service, this, TEST, true);
+        tasks.add(task);
         return this;
     }
 

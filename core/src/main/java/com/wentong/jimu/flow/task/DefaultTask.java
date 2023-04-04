@@ -7,6 +7,9 @@ import com.wentong.jimu.metrics.Metrics;
 import com.wentong.jimu.service.Service;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 默认的 Task
+ */
 @Slf4j
 public class DefaultTask implements FlowTask {
 
@@ -22,11 +25,14 @@ public class DefaultTask implements FlowTask {
 
     private final String flowType;
 
-    public DefaultTask(Service<?> service, Object input, Flow flow, String flowType) {
+    private final boolean finalTask;
+
+    public DefaultTask(Service<?> service, Object input, Flow flow, String flowType, boolean finalTask) {
         this.service = service;
         this.input = input;
         this.flow = flow;
         this.flowType = flowType;
+        this.finalTask = finalTask;
         this.id = IdUtil.fastUUID();
         metrics = new LoggingMetrics();
     }
@@ -43,13 +49,7 @@ public class DefaultTask implements FlowTask {
         metrics.start();
         Object output = service.process(input, getFlow().getServiceContext());
         metrics.stop();
-        return TaskResult.builder()
-                .input(input)
-                .output(output)
-                .executionId(IdUtil.fastUUID())
-                .taskId(getId())
-                .status(TaskStatusEnum.SUCCESS)
-                .build();
+        return TaskResult.builder().input(input).output(output).executionId(IdUtil.fastUUID()).taskId(getId()).status(TaskStatusEnum.SUCCESS).build();
     }
 
     @Override
@@ -83,14 +83,12 @@ public class DefaultTask implements FlowTask {
     }
 
     @Override
+    public boolean finalTask() {
+        return finalTask;
+    }
+
+    @Override
     public String toString() {
-        return "DefaultTask{" +
-                "input=" + input +
-                ", service=" + service +
-                ", flow=" + flow +
-                ", id='" + id + '\'' +
-                ", metrics=" + metrics +
-                ", flowType='" + flowType + '\'' +
-                '}';
+        return "DefaultTask{" + "input=" + input + ", service=" + service + ", flow=" + flow + ", id='" + id + '\'' + ", metrics=" + metrics + ", flowType='" + flowType + '\'' + '}';
     }
 }

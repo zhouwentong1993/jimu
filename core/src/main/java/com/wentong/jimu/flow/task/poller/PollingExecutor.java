@@ -28,8 +28,8 @@ public class PollingExecutor {
         if (pollingSemaphore.canPoll()) {
             try {
                 Task task = taskPoller.poll(worker.getFlowType());
-                log.info("polling task: {}", task);
                 if (task != null) {
+                    log.info("polling task: {}", task);
                     CompletableFuture<TaskResult> future = taskExecutor.submit(worker, task);
                     future.whenComplete((result, throwable) -> {
                         // 在任务中已经处理了异常，这里不需要再处理

@@ -2,13 +2,12 @@ package com.wentong.jimu.flow.dispatcher;
 
 import cn.hutool.core.collection.CollUtil;
 import com.wentong.jimu.flow.Flow;
-import com.wentong.jimu.flow.task.*;
+import com.wentong.jimu.flow.task.FlowTask;
+import com.wentong.jimu.flow.task.TaskResult;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * 基于内存的流程调度器，维护流程状态以及任务状态。任务状态由执行器上报维护，采用 ack 机制。
@@ -17,9 +16,6 @@ import java.util.concurrent.BlockingQueue;
 @Slf4j
 public class MemoryFlowDispatcher implements FlowDispatcher {
 
-    private static final int DEFAULT_THREAD_POOL_SIZE = 10000;
-
-    private final BlockingQueue<Task> queue = new ArrayBlockingQueue<>(DEFAULT_THREAD_POOL_SIZE);
     private final Map<String, Flow> flowMap = new HashMap<>();
     // taskType -> tasks
     private final Map<String, Deque<FlowTask>> taskTypeMap = new HashMap<>();
@@ -31,15 +27,16 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
     // flowId -> tasks 映射关系
     private final Map<String, List<FlowTask>> flowTaskMap = new HashMap<>();
 
-
     @Override
     public synchronized void submit(Flow flow) {
         if (CollUtil.isEmpty(flow.getTasks())) {
             log.warn("flow {} has no task", flow.getFlowId());
             return;
         }
+
         // 创建 flowId -> flow 映射
         flowMap.put(flow.getFlowId(), flow);
+
         // 创建 flowId -> tasks 映射
         flowTaskMap.put(flow.getFlowId(), flow.getTasks());
 
@@ -101,7 +98,7 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
 
         switch (taskResult.getStatus()) {
             case SUCCESS -> {
-                if (flowTask instanceof FlowFinalTask) {
+                if (flowTask.finalTask()) {
                     // 如果是最后一个任务，那么就将 flow 从 flowMap 中移除
                     flowMap.remove(flowTask.getFlow().getFlowId());
                     log.info("flow {} is finished", flowTask.getFlow().getFlowId());

@@ -10,4 +10,6 @@ public interface FlowTask extends Task {
 
     String getTaskType();
 
+    boolean finalTask();
+
 }

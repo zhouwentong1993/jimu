@@ -14,7 +14,7 @@ public class ServiceTest {
         ServiceFactory.registerService("ServiceC", ServiceLoader.getInstance().loadClass("com.wentong.jimu.service.ServiceA"));
 
         Flow flow = new Flow();
-        flow.startFlow("ServiceA", "hello").nextFlow("ServiceB").nextFlow("ServiceC");
+        flow.startFlow("ServiceA", "hello", false).nextFlow("ServiceB", false).flowFinalTask("ServiceC");
         FlowDispatcher dispatcher = new MemoryFlowDispatcher();
         dispatcher.submit(flow);
     }
