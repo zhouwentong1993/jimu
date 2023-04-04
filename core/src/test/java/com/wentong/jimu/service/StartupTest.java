@@ -1,6 +1,7 @@
 package com.wentong.jimu.service;
 
 import com.wentong.jimu.flow.Flow;
+import com.wentong.jimu.flow.ServiceContext;
 import com.wentong.jimu.flow.dispatcher.FlowDispatcher;
 import com.wentong.jimu.flow.dispatcher.MemoryFlowDispatcher;
 import com.wentong.jimu.flow.task.TaskRunner;
@@ -14,8 +15,12 @@ public class StartupTest {
         ServiceFactory.registerService("ServiceB", ServiceLoader.getInstance().loadClass("com.wentong.jimu.service.ServiceB"));
         ServiceFactory.registerService("ServiceC", ServiceLoader.getInstance().loadClass("com.wentong.jimu.service.ServiceC"));
 
+        ServiceContext serviceContext = new ServiceContext();
+        serviceContext.put("name", "wentong");
+        serviceContext.put("age", 18);
+
         Flow flow = new Flow();
-        flow.startFlow("ServiceA", "hello", false).nextFlow("ServiceB", false).flowFinalTask("ServiceC");
+        flow.startFlow("ServiceA", "hello", serviceContext, false).nextFlow("ServiceB", false).flowFinalTask("ServiceC");
         FlowDispatcher dispatcher = new MemoryFlowDispatcher();
         dispatcher.submit(flow);
 

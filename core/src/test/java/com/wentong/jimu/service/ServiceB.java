@@ -8,6 +8,7 @@ public class ServiceB extends AbstractService<String> {
     @Override
     public Object process(String message, ServiceContext context) {
         log.info("ServiceB.process");
-        return "Hello " + message;
+        log.info("message: {}, context:{}", message, context);
+        return "Hello " + context.get("name");
     }
 }

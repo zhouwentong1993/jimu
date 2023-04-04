@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultTask implements FlowTask {
 
-    private final Object input;
+    private Object input;
 
     private final Service service;
 
@@ -91,4 +91,9 @@ public class DefaultTask implements FlowTask {
     public String toString() {
         return "DefaultTask{" + "input=" + input + ", service=" + service + ", flow=" + flow + ", id='" + id + '\'' + ", metrics=" + metrics + ", flowType='" + flowType + '\'' + '}';
     }
+
+    public void setInput(Object input) {
+        this.input = input;
+    }
+
 }

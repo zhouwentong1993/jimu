@@ -7,6 +7,7 @@ import lombok.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.wentong.jimu.flow.FlowType.TEST;
 
@@ -17,11 +18,11 @@ public class Flow {
 
     private String flowId;
 
-    public Flow startFlow(@NonNull String service, Object input, boolean finalTask) {
+    public Flow startFlow(@NonNull String service, Object input, ServiceContext serviceContext,  boolean finalTask) {
         flowId = IdUtil.fastUUID();
         FlowTask task = TaskFactory.buildTask(service, input, this, TEST, finalTask);
         tasks.add(task);
-        serviceContext = new ServiceContext();
+        this.serviceContext = serviceContext;
         return this;
     }
 
@@ -29,6 +30,7 @@ public class Flow {
      * next flow，用来连接那种没有终止任务的
      */
     public Flow nextFlowWithoutEndTask(String... service) {
+        Objects.requireNonNull(serviceContext, "必须先调用 startFlow 方法");
         for (String s : service) {
             FlowTask task = TaskFactory.buildTask(s, this, TEST, false);
             tasks.add(task);
@@ -37,12 +39,14 @@ public class Flow {
     }
 
     public Flow nextFlow(String service, boolean finalTask) {
+        Objects.requireNonNull(serviceContext, "必须先调用 startFlow 方法");
         FlowTask task = TaskFactory.buildTask(service, this, TEST, finalTask);
         tasks.add(task);
         return this;
     }
 
     public Flow flowFinalTask(String service) {
+        Objects.requireNonNull(serviceContext, "必须先调用 startFlow 方法");
         FlowTask task = TaskFactory.buildTask(service, this, TEST, true);
         tasks.add(task);
         return this;

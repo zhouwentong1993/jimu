@@ -2,6 +2,7 @@ package com.wentong.jimu.flow.dispatcher;
 
 import cn.hutool.core.collection.CollUtil;
 import com.wentong.jimu.flow.Flow;
+import com.wentong.jimu.flow.task.DefaultTask;
 import com.wentong.jimu.flow.task.FlowTask;
 import com.wentong.jimu.flow.task.TaskResult;
 import lombok.NonNull;
@@ -105,8 +106,10 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
                     break;
                 }
                 // 执行成功，将下一个任务放入队列中
-                FlowTask nextTask = getNextTaskAndRemoveThisTask(taskId);
+                // 这里强转类型了，将 input 设置了一下。
+                DefaultTask nextTask = (DefaultTask)getNextTaskAndRemoveThisTask(taskId);
                 if (nextTask != null) {
+                    nextTask.setInput(taskResult.getOutput());
                     putTaskIntoQueue(nextTask);
                 }
             }
