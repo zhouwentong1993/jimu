@@ -5,10 +5,13 @@ import com.wentong.jimu.flow.Flow;
 import com.wentong.jimu.flow.task.DefaultTask;
 import com.wentong.jimu.flow.task.FlowTask;
 import com.wentong.jimu.flow.task.TaskResult;
+import com.wentong.jimu.locker.Lock;
+import com.wentong.jimu.locker.MemoryLock;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 基于内存的流程调度器，维护流程状态以及任务状态。任务状态由执行器上报维护，采用 ack 机制。
@@ -27,6 +30,8 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
     private final Map<String, FlowTask> processingTask = new HashMap<>();
     // flowId -> tasks 映射关系
     private final Map<String, List<FlowTask>> flowTaskMap = new HashMap<>();
+    // 定义锁接口
+    private final Lock lock = new MemoryLock();
 
     @Override
     public synchronized void submit(Flow flow) {
@@ -67,8 +72,11 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
             List<FlowTask> result = new ArrayList<>();
             for (int i = 0; i < Math.min(size, tasks.size()); i++) {
                 FlowTask flowTask = tasks.pollFirst();
-                result.add(flowTask);
-                processingTask.put(flowTask.getId(), flowTask);
+                // 增加锁控制，避免重复获取任务
+                if (lock.tryLock(flowTask.getId(), 1, 30, TimeUnit.SECONDS)) {
+                    result.add(flowTask);
+                    processingTask.put(flowTask.getId(), flowTask);
+                }
             }
             return result;
         } else {
@@ -81,8 +89,12 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
         Deque<FlowTask> tasks = taskTypeMap.get(flowType);
         FlowTask flowTask = tasks.pollFirst();
         if (flowTask != null) {
-            processingTask.put(flowTask.getId(), flowTask);
-            return flowTask;
+            if (lock.tryLock(flowTask.getId(), 1, 30, TimeUnit.SECONDS)) {
+                processingTask.put(flowTask.getId(), flowTask);
+                return flowTask;
+            } else {
+                return null;
+            }
         } else {
             return null;
         }
@@ -97,7 +109,7 @@ public class MemoryFlowDispatcher implements FlowDispatcher {
             log.warn("task {} is not in processing", taskId);
             return;
         }
-
+        lock.release(taskId);
         switch (taskResult.getStatus()) {
             case SUCCESS -> {
                 if (flowTask.finalTask()) {
